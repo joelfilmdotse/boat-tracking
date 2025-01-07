@@ -2,7 +2,7 @@
 <html>
 <head>
   <title>Båtspårning</title>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAQPgoebWqFXyHmBYUPDd8-tRI170wyoJs"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=DIN_API_NYCKEL"></script>
   <script>
     let map;
     let boats = {}; // Hållare för båtar och deras data
@@ -10,8 +10,8 @@
     // Initiera kartan
     function initMap() {
       map = new google.maps.Map(document.getElementById("map"), {
-        center: { 57.60826637913071, lng: 11.796081624745197 }, // Stockholm som exempel
-        zoom: 20,
+        center: { lat: 59.3293, lng: 18.0686 }, // Stockholm som exempel
+        zoom: 10,
       });
 
       // Uppdatera båtar varje sekund
@@ -22,8 +22,8 @@
     function updateBoatPositions() {
       // Exempeldata: Ersätt detta med dynamisk data från din server
       const gpsData = [
-        { id: "boat1", lat: 57.60800774112793, lng: 11.796280108211562, speed: 5 },
-        { id: "boat2", lat: 57.60826206851243, lng: 11.796937249417766, speed: 6 },
+        { id: "boat1", lat: 59.3293, lng: 18.0686, speed: 5 },
+        { id: "boat2", lat: 59.3294, lng: 18.0687, speed: 6 },
       ];
 
       gpsData.forEach(boat => {
