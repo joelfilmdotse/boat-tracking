@@ -5,79 +5,54 @@
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAQPgoebWqFXyHmBYUPDd8-tRI170wyoJs"></script>
   <script>
     let map;
-    let boats = {}; // Hållare för båtar och deras data
+    let boats = {}; // Hållare för båtarnas markörer och historik
 
     // Initiera kartan
     function initMap() {
       map = new google.maps.Map(document.getElementById("map"), {
-        center: { 57.60826637913071, lng: 11.796081624745197 }, // Stockholm som exempel
-        zoom: 20,
+        center: { lat: 57.60826637913071, lng: 11.796081624745197 }, // Vind i seglen koordinater
+        zoom: 10,
       });
 
-      // Uppdatera båtar varje sekund
+      // Hämta GPS-data varje sekund
       setInterval(updateBoatPositions, 1000);
     }
 
-    // Uppdatera båtar och deras positioner
+    // Uppdatera båtarnas positioner
     function updateBoatPositions() {
-      // Exempeldata: Ersätt detta med dynamisk data från din server
+      // Exempeldata: Detta ska ersättas med data från din server eller Google Sheet
       const gpsData = [
         { id: "boat1", lat: 57.60800774112793, lng: 11.796280108211562, speed: 5 },
         { id: "boat2", lat: 57.60826206851243, lng: 11.796937249417766, speed: 6 },
       ];
 
-      gpsData.forEach(boat => {
+      gpsData.forEach((boat) => {
         if (boats[boat.id]) {
           // Uppdatera markörens position
           boats[boat.id].marker.setPosition(new google.maps.LatLng(boat.lat, boat.lng));
-
+          
           // Lägg till historiklinje
           const path = boats[boat.id].path.getPath();
           path.push(new google.maps.LatLng(boat.lat, boat.lng));
-
-          // Uppdatera infofönster
-          boats[boat.id].infoWindow.setContent(`
-            <div>
-              <strong>${boat.id}</strong><br>
-              Hastighet: ${boat.speed} knop<br>
-              Lat: ${boat.lat}<br>
-              Lng: ${boat.lng}
-            </div>
-          `);
         } else {
-          // Skapa ny markör och historiklinje
-          const marker = new google.maps.Marker({
-            position: { lat: boat.lat, lng: boat.lng },
-            map: map,
-            icon: {
-              url: "https://img.icons8.com/emoji/48/sailboat-emoji.png", // Anpassad ikon
-              scaledSize: new google.maps.Size(32, 32),
-            },
-            title: boat.id,
-          });
-
-          const path = new google.maps.Polyline({
-            map: map,
-            strokeColor: "#FF0000",
-            strokeOpacity: 1.0,
-            strokeWeight: 2,
-          });
-
-          const infoWindow = new google.maps.InfoWindow({
-            content: `<div>
-              <strong>${boat.id}</strong><br>
-              Hastighet: ${boat.speed} knop<br>
-              Lat: ${boat.lat}<br>
-              Lng: ${boat.lng}
-            </div>`,
-          });
-
-          // Visa infofönster vid klick
-          marker.addListener("click", () => {
-            infoWindow.open(map, marker);
-          });
-
-          boats[boat.id] = { marker, path, infoWindow };
+          // Skapa en ny markör för båten
+          boats[boat.id] = {
+            marker: new google.maps.Marker({
+              position: { lat: boat.lat, lng: boat.lng },
+              map: map,
+              title: boat.id,
+              icon: {
+                url: "https://img.icons8.com/emoji/48/sailboat-emoji.png", // Anpassa med din egen ikon
+                scaledSize: new google.maps.Size(32, 32),
+              },
+            }),
+            path: new google.maps.Polyline({
+              map: map,
+              strokeColor: "#FF0000",
+              strokeOpacity: 1.0,
+              strokeWeight: 2,
+            }),
+          };
         }
       });
     }
