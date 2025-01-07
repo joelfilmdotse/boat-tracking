@@ -10,7 +10,7 @@
     // Initiera kartan
     function initMap() {
       map = new google.maps.Map(document.getElementById("map"), {
-        center: { lat: 59.3293, lng: 18.0686 }, // Stockholm som exempel
+        center: { lat: 57.6082, lng: 11.7960 }, // Stockholm som exempel
         zoom: 10,
       });
 
@@ -22,8 +22,8 @@
     function updateBoatPositions() {
       // Exempeldata: Ersätt detta med dynamisk data från din server
       const gpsData = [
-        { id: "boat1", lat: 59.3293, lng: 18.0686, speed: 5 },
-        { id: "boat2", lat: 59.3294, lng: 18.0687, speed: 6 },
+        { id: "boat1", lat: 57.6082, lng: 11.7960, speed: 5 },
+        { id: "boat2", lat: 57.6081, lng: 11.7961, speed: 6 },
       ];
 
       gpsData.forEach(boat => {
