@@ -2,91 +2,65 @@
 <html>
 <head>
   <title>Båtspårning</title>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAQPgoebWqFXyHmBYUPDd8-tRI170wyoJs"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCqFfLV2JUcSTEafxM47YTRnzhr6coS-tc"></script>
   <script>
     let map;
-    let boats = {}; // Hållare för båtarnas markörer och historik
+    let boatMarkers = {}; // Hållare för båtmarkörer
+    const sheetId = "1gGBYjvlvXSAhY0O3_kz-kxeh7oIVESLmYBDHvU-uEoo"; // Ditt Google Sheets ID
+    const apiKey = "AIzaSyCqFfLV2JUcSTEafxM47YTRnzhr6coS-tc"; // Din Google API-nyckel
+    const boatIcon = "https://drive.google.com/uc?export=view&id=13uyRWm3po28grPSWLVoxzh91RodXSogf"; // Bildens direktlänk
 
     // Initiera kartan
     function initMap() {
       map = new google.maps.Map(document.getElementById("map"), {
-        center: { lat: 57.60826637913071, lng: 11.796081624745197 }, // Vind i seglen koordinater
-        zoom: 10,
+        center: { lat: 57.601268, lng: 11.807757 }, // Startposition
+        zoom: 12,
       });
 
-      // Uppdatera båtar varje sekund
-      setInterval(updateBoatPositions, 1000);
+      // Uppdatera båtarnas position var 5:e sekund
+      setInterval(fetchBoatData, 5000);
     }
 
-    // Uppdatera båtarnas positioner
-    function updateBoatPositions() {
-      // Exempeldata: Detta ska ersättas med data från din server eller Google Sheet
-      const gpsData = [
-        { id: "Båt 1", lat: 57.60800774112793, lng: 11.796280108211562, speed: 5 },
-        { id: "Båt 2", lat: 57.60826206851243, lng: 11.796937249417766, speed: 6 },
-      ];
+    // Hämta GPS-data från Google Sheets
+    async function fetchBoatData() {
+      try {
+        const response = await fetch(
+          `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1?key=${apiKey}`
+        );
+        const data = await response.json();
 
-      gpsData.forEach(boat => {
-        if (boats[boat.id]) {
-          // Uppdatera markörens position
-          boats[boat.id].marker.setPosition(new google.maps.LatLng(boat.lat, boat.lng));
+        // Förvänta att datan börjar på andra raden
+        const rows = data.values.slice(1);
 
-          // Lägg till historiklinje
-          const path = boats[boat.id].path.getPath();
-          path.push(new google.maps.LatLng(boat.lat, boat.lng));
+        rows.forEach(row => {
+          const boatId = row[0]; // Kolumn A: Båt-ID
+          const lat = parseFloat(row[1]); // Kolumn B: Latitude
+          const lng = parseFloat(row[2]); // Kolumn C: Longitude
+          const speed = row[3]; // Kolumn D: Hastighet
+          const timestamp = row[4]; // Kolumn E: Tidsstämpel
 
-          // Uppdatera infofönster
-          boats[boat.id].infoWindow.setContent(`
-            <div>
-              <strong>${boat.id}</strong><br>
-              Hastighet: ${boat.speed} knop<br>
-              Lat: ${boat.lat.toFixed(6)}<br>
-              Lng: ${boat.lng.toFixed(6)}
-            </div>
-          `);
-        } else {
-          // Skapa en ny markör för båten
-          const marker = new google.maps.Marker({
-            position: { lat: boat.lat, lng: boat.lng },
-            map: map,
-            icon: {
-              url: "https://cdn-icons-png.flaticon.com/512/2909/2909673.png", // Segelbåtsikon
-              scaledSize: new google.maps.Size(32, 32),
-            },
-            title: boat.id,
-          });
-
-          // Skapa en historiklinje för båten
-          const path = new google.maps.Polyline({
-            map: map,
-            strokeColor: "#FF0000",
-            strokeOpacity: 1.0,
-            strokeWeight: 2,
-          });
-
-          // Skapa ett infofönster för båten
-          const infoWindow = new google.maps.InfoWindow({
-            content: `<div>
-              <strong>${boat.id}</strong><br>
-              Hastighet: ${boat.speed} knop<br>
-              Lat: ${boat.lat.toFixed(6)}<br>
-              Lng: ${boat.lng.toFixed(6)}
-            </div>`,
-          });
-
-          // Öppna infofönstret vid klick
-          marker.addListener("click", () => {
-            infoWindow.open(map, marker);
-          });
-
-          // Lagra båtens data
-          boats[boat.id] = { marker, path, infoWindow };
-        }
-      });
+          // Uppdatera eller skapa en markör för båten
+          if (boatMarkers[boatId]) {
+            boatMarkers[boatId].setPosition({ lat, lng });
+          } else {
+            boatMarkers[boatId] = new google.maps.Marker({
+              position: { lat, lng },
+              map: map,
+              title: `Boat ID: ${boatId}\nSpeed: ${speed} knots\nLast updated: ${timestamp}`,
+              icon: {
+                url: boatIcon,
+                scaledSize: new google.maps.Size(50, 50), // Justera storlek på ikonen
+              },
+            });
+          }
+        });
+      } catch (error) {
+        console.error("Fel vid hämtning av data:", error);
+      }
     }
   </script>
 </head>
 <body onload="initMap()">
-  <div id="map" style="width: 100%; height: 100vh;"></div>
+  <div id="map" style="height: 100vh; width: 100%;"></div>
 </body>
 </html>
