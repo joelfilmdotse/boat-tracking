@@ -21,7 +21,7 @@
     async function fetchBoatData() {
       const sheetId = "1gGBYjvlvXSAhY0O3_kz-kxeh7oIVESLmYBDHvU-uEoo";
       const apiKey = "AIzaSyCqFfLV2JUcSTEafxM47YTRnzhr6coS-tc";
-      const range = "Sheet1!A2:E"; // Exkludera rubrikraden
+      const range = "Sheet1!A2:F"; // Exkludera rubrikraden och inkludera riktning
 
       try {
         const response = await fetch(
@@ -41,12 +41,13 @@
 
     function updateBoatMarkers(boatData) {
       boatData.forEach((row) => {
-        const [boatId, lat, lng, speed, timestamp] = row;
+        const [boatId, lat, lng, speed, timestamp, direction] = row;
         const position = { lat: parseFloat(lat), lng: parseFloat(lng) };
 
         if (boatMarkers[boatId]) {
-          // Uppdatera markörens position
+          // Uppdatera markörens position och riktning
           boatMarkers[boatId].setPosition(position);
+          rotateIcon(boatMarkers[boatId], parseFloat(direction || 0));
         } else {
           // Skapa en ny markör
           const marker = new google.maps.Marker({
@@ -56,11 +57,21 @@
             icon: {
               url: "boat_icon.png", // Ersätt med din båtbilds-URL
               scaledSize: new google.maps.Size(50, 50), // Justera storlek
+              anchor: new google.maps.Point(25, 25), // Centrerad ikon
             },
           });
           boatMarkers[boatId] = marker;
+
+          // Sätt initial riktning
+          rotateIcon(marker, parseFloat(direction || 0));
         }
       });
+    }
+
+    function rotateIcon(marker, angle) {
+      const icon = marker.getIcon();
+      icon.rotation = angle; // Lägg till rotation
+      marker.setIcon(icon);
     }
   </script>
   <style>
