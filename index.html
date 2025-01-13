@@ -19,25 +19,25 @@
     }
 
     async function fetchBoatData() {
-      const sheetId = "1gGBYjvlvXSAhY0O3_kz-kxeh7oIVESLmYBDHvU-uEoo";
-      const apiKey = "AIzaSyCqFfLV2JUcSTEafxM47YTRnzhr6coS-tc";
-      const range = "Sheet1!A2:F"; // Exkludera rubrikraden och inkludera riktning
+  const sheetId = "1gGBYjvlvXSAhY0O3_kz-kxeh7oIVESLmYBDHvU-uEoo";
+  const apiKey = "AIzaSyCqFfLV2JUcSTEafxM47YTRnzhr6coS-tc";
+  const range = "GPS Data!A2:F"; // Exkludera rubrikraden och inkludera riktning
 
-      try {
-        const response = await fetch(
-          `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`
-        );
-        const data = await response.json();
+  try {
+    const response = await fetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`
+    );
+    const data = await response.json();
 
-        if (data.values) {
-          updateBoatMarkers(data.values);
-        } else {
-          console.error("Inga data hittades i Google Sheet.");
-        }
-      } catch (error) {
-        console.error("Fel vid hämtning av data:", error);
-      }
+    if (data.values) {
+      updateBoatMarkers(data.values);
+    } else {
+      console.error("Inga data hittades i Google Sheet.");
     }
+  } catch (error) {
+    console.error("Fel vid hämtning av data:", error);
+  }
+}
 
     function updateBoatMarkers(boatData) {
       boatData.forEach((row) => {
